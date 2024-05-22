@@ -1,24 +1,23 @@
 
 import React from 'react'; 
 import { Menubar } from 'primereact/menubar';
+import { useNavigate } from "react-router-dom";
 
-export default function BasicDemo() {
+const Navbar = () => {
+    const navigate = useNavigate();
     const items = [
-        {
-            label: 'Home',
-            icon: 'pi pi-home'
-        },
         {
             label: 'Projects',
             icon: 'pi pi-search',
             items: [
                 {
                     label: 'Login',
-                    icon: 'pi pi-bolt'
+                    icon: 'pi pi-bolt',
+                    command: () => { navigate('/login') }
                 },
                 {
-                    label: 'Student Register',
-                    icon: 'pi pi-server'
+                    label: 'Students',
+                    icon: 'pi pi-server',
                 }
             ]
         },
@@ -30,8 +29,8 @@ export default function BasicDemo() {
 
     return (
         <div className="card">
-            <Menubar model={items} />
+            <Menubar model={items}/>
         </div>
     )
 }
-        
+export default Navbar

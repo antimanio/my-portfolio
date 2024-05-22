@@ -11,7 +11,7 @@ import { classNames } from 'primereact/utils';
 import { CountryService } from '../service/CountryService';
 import '../style/FormDemo.css';
 
-export default function FormDemo() {
+const Register = () => {
     const [countries, setCountries] = useState([]);
     const [showMessage, setShowMessage] = useState(false);
     const [formData, setFormData] = useState({});
@@ -127,3 +127,6 @@ export default function FormDemo() {
         </div>
     );
 }
+
+
+export default Register;
