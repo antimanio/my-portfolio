@@ -11,13 +11,9 @@ const Navbar = () => {
             icon: 'pi pi-search',
             items: [
                 {
-                    label: 'Login',
+                    label: 'Cut hair ? ',
                     icon: 'pi pi-bolt',
                     command: () => { navigate('/login') }
-                },
-                {
-                    label: 'Students',
-                    icon: 'pi pi-server',
                 }
             ]
         },

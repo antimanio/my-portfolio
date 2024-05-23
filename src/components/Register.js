@@ -1,41 +1,55 @@
 import React, { useEffect, useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
+import { useNavigate } from "react-router-dom";
 import { InputText } from 'primereact/inputtext';
 import { Button } from 'primereact/button';
 import { Dropdown } from 'primereact/dropdown';
-import { Calendar } from 'primereact/calendar';
 import { Password } from 'primereact/password';
 import { Dialog } from 'primereact/dialog';
 import { Divider } from 'primereact/divider';
 import { classNames } from 'primereact/utils';
-import { CountryService } from '../service/CountryService';
+import { getRoles } from '../api/RoleApi';
+import { register } from '../api/AuthApi'
 import '../style/FormDemo.css';
 
 const Register = () => {
-    const [countries, setCountries] = useState([]);
+    
+    const navigate = useNavigate();
+    const [roles, setRoles] = useState([]);
     const [showMessage, setShowMessage] = useState(false);
     const [formData, setFormData] = useState({});
-    const countryservice = new CountryService();
     const defaultValues = {
         name: '',
         email: '',
         password: '',
-        date: null,
-        country: null,
+        role: null,
         accept: false
     }
 
     useEffect(() => {
-        countryservice.getCountries().then(data => setCountries(data));
-    }, []); // eslint-disable-line react-hooks/exhaustive-deps
+        const fetchRoles = async () => {
+            const data = await getRoles();
+            if (data) {
+                setRoles(data);
+            }
+        };
+
+        fetchRoles();
+        }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
     const { control, formState: { errors }, handleSubmit, reset } = useForm({ defaultValues });
 
-    const onSubmit = (data) => {
+    const onSubmit = async (data) => {
         setFormData(data);
-        setShowMessage(true);
-
-        reset();
+        try {
+            const response = await register(data.name,data.email, data.password, data.role.role)
+            if(response.status === 200){
+                setShowMessage(true);
+                reset();
+            }
+        } catch (error) {
+            console.log(error)
+        }
     };
 
     const getFormErrorMessage = (name) => {
@@ -59,7 +73,16 @@ const Register = () => {
 
     return (
         <div className="form-demo">
-            <Dialog visible={showMessage} onHide={() => setShowMessage(false)} position="top" footer={dialogFooter} showHeader={false} breakpoints={{ '960px': '80vw' }} style={{ width: '30vw' }}>
+            <Dialog 
+            visible={showMessage} 
+            onHide={() => setShowMessage(false)} 
+            onClick={() => navigate('/login')}
+            position="top" 
+            footer={dialogFooter} 
+            showHeader={false} 
+            breakpoints={{ '960px': '80vw' }} 
+            style={{ width: '30vw' }}
+            >
                 <div className="flex justify-content-center flex-column pt-6 px-3">
                     <i className="pi pi-check-circle" style={{ fontSize: '5rem', color: 'var(--green-500)' }}></i>
                     <h5>Registration Successful!</h5>
@@ -105,19 +128,12 @@ const Register = () => {
                         </div>
                         <div className="field">
                             <span className="p-float-label">
-                                <Controller name="date" control={control} render={({ field }) => (
-                                    <Calendar id={field.name} value={field.value} onChange={(e) => field.onChange(e.value)} dateFormat="dd/mm/yy" mask="99/99/9999" showIcon />
+                                <Controller name="role" control={control} rules={{ required: 'Role is required.' }} render={({ field }) => (
+                                    <Dropdown id={field.name} value={field.value} onChange={(e) => field.onChange(e.value)} options={roles} optionLabel="role" />
                                 )} />
-                                <label htmlFor="date">Birthday</label>
+                                <label htmlFor="role">Role</label>
                             </span>
-                        </div>
-                        <div className="field">
-                            <span className="p-float-label">
-                                <Controller name="country" control={control} render={({ field }) => (
-                                    <Dropdown id={field.name} value={field.value} onChange={(e) => field.onChange(e.value)} options={countries} optionLabel="name" />
-                                )} />
-                                <label htmlFor="country">Country</label>
-                            </span>
+                            {getFormErrorMessage('role')}
                         </div>
 
                         <Button type="submit" label="Submit" className="mt-2" />
